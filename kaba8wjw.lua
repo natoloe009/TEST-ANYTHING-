@@ -210,7 +210,7 @@ local HawkLib = {
     TitleLineColor = Color3.fromRGB(200, 200, 200), -- Light gray line
     PageTitleColor = Color3.fromRGB(135, 206, 235), -- Light sky blue text
     Selection = Color3.fromRGB(176, 224, 230), -- Light blue for selected items
-    CloseMinimize = Color3.fromRGB(192, 192, 192), -- Soft gray for close buttons
+    CloseMinimize = Color3.fromRGB(220, 235, 245), -- Soft gray for close buttons
     ItemColors = Color3.fromRGB(245, 245, 245), -- Very light gray for items
     ItemTitleColors = Color3.fromRGB(50, 50, 50), -- Dark gray text for clarity
     ItemTextColors = Color3.fromRGB(112, 128, 144), -- Slate gray text for softness
@@ -218,16 +218,16 @@ local HawkLib = {
     ItemTextBoxKeyBindStrokeColors = Color3.fromRGB(192, 192, 192), -- Soft gray border
     ItemTextBoxTextColor = Color3.fromRGB(112, 128, 144), -- Slate gray text
     ItemKeyBindTextColor = Color3.fromRGB(135, 206, 235), -- Sky blue text
-    ToggleTickColor = Color3.fromRGB(255, 255, 255), -- White for toggles
-    ButtonClickIconColor = Color3.fromRGB(182, 182, 182), -- Light gray icon color
-    ButtonHover = Color3.fromRGB(200, 225, 240), -- Soft muted blue hover effect
+    ToggleTickColor = Color3.fromRGB(220, 235, 245), -- White for toggles
+    ButtonClickIconColor = Color3.fromRGB(220, 235, 245), -- Light gray icon color
+    ButtonHover = Color3.fromRGB(220, 235, 245), -- Soft muted blue hover effect
     SliderButtonFrameColor = Color3.fromRGB(224, 238, 249), -- Pastel blue slider frame
     InSliderFrame = ColorSequence.new{
         ColorSequenceKeypoint.new(0.00, Color3.fromRGB(176, 224, 230)), 
         ColorSequenceKeypoint.new(1.00, Color3.fromRGB(135, 206, 235))
     }, -- Gentle gradient of light blues
-    NumColor = Color3.fromRGB(176, 224, 230), -- Soft pastel blue for numbers
-    DropdownColorPickerImageArrowColors = Color3.fromRGB(135, 206, 235), -- Sky blue arrows
+    NumColor = Color3.fromRGB(220, 235, 245), -- Soft pastel blue for numbers
+    DropdownColorPickerImageArrowColors = Color3.fromRGB(220, 235, 245), -- Sky blue arrows
     NotificationNotifyColor = Color3.fromRGB(245, 245, 245), -- Very light gray notification
     NotificationNotifyTitleColor = Color3.fromRGB(50, 50, 50), -- Dark gray title
     NotificationNotifyTextColor = Color3.fromRGB(112, 128, 144), -- Slate gray text
