@@ -1,4 +1,3 @@
-local icons = [[
     {
       "icons": {
         "aperture": "rbxassetid://7733666258",
@@ -568,4 +567,3 @@ local icons = [[
         "wrench": "rbxassetid://7743878358"
       }
     }
-]]
