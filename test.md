@@ -8,7 +8,7 @@
   <a href=https://discord.gg/gwNTt2thTg" target="_blank">
     <img src="https://img.shields.io/badge/Discord-FF66C4?style=for-the-badge&logo=discord&logoColor=white" />
   </a>
-  <a href="https://www.youtube.com/@Anura-gaming-real" target="_blank">
+  <a href="https://youtube.com/@kagahub?si=KoUBcsJlNfZPUQ1s" target="_blank">
     <img src="https://img.shields.io/badge/Youtube-66CCFF?style=for-the-badge&logo=youtube&logoColor=white" />
   </a>
 </p>
