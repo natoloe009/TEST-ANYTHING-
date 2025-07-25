@@ -1,4 +1,4 @@
-<h1 align="center" style="color:#FF66C4">🌐 Hello world, I'am Anura Gaming💫</h1>
+<h1 align="center" style="color:#FF66C4">🌐 Hello world, I'am KaGa HUB💫</h1>
 <h3 align="center" style="color:#66CCFF">If you need help then message me on Discord</h3>
 
 <p align="center">
