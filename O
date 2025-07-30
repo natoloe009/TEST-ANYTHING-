@@ -1,0 +1,5 @@
+if getgenv().chek == "eng" then
+    loadstring(game:HttpGet(('https://raw.githubusercontent.com/natoloe009/SCRIPT-ROBLOX/refs/heads/main/ENG.txt'),true))()
+elseif getgenv().chek == "thai" then
+   loadstring(game:HttpGet(('https://raw.githubusercontent.com/natoloe009/SCRIPT-ROBLOX/refs/heads/main/TH.txt'),true))()
+end
