@@ -1,0 +1,149 @@
+--[[
+    Improved Roblox Lua Serializer
+    Features:
+      - Faster index validation (no buffer usage)
+      - Plugin support (Serializer.register)
+      - Formatting styles (compact / pretty)
+      - Better cycle detection (placeholder instead of hard error)
+      - Cleaner fallback handling
+      - Executor feature flags (SharedTable, buffer)
+
+    Author: Refactored by ChatGPT
+]]--
+
+local Serializer = {}
+Serializer.__index = Serializer
+
+-- ======================
+--   CONFIG OPTIONS
+-- ======================
+Serializer.__VERSION = "2.0"
+Serializer.__LICENSE = "Apache 2.0"
+Serializer.__URL = "https://github.com/pyxld-kris/roblox-serde"
+
+Serializer.__AllowCyclic = false -- insert placeholder instead of error
+Serializer.__tostringUnsupported = true -- append tostring() of unsupported types
+Serializer.FormatStyle = "pretty" -- "compact" | "pretty"
+
+-- Feature flags (executor safe)
+Serializer.__Supports = {
+    SharedTable = pcall(function() return SharedTable end),
+    buffer = pcall(function() return buffer end),
+}
+
+-- ======================
+--   UTILITIES
+-- ======================
+
+-- Fast Lua identifier validation
+local function IsValidIdentifier(str)
+    if type(str) ~= "string" or str == "" then return false end
+    local b = str:byte(1)
+    if not b or (b ~= 95 and (b < 65 or b > 90) and (b < 97 or b > 122)) then
+        return false
+    end
+    for i = 2, #str do
+        local c = str:byte(i)
+        if not (c == 95 or (c >= 48 and c <= 57) or (c >= 65 and c <= 90) or (c >= 97 and c <= 122)) then
+            return false
+        end
+    end
+    return true
+end
+
+-- Shared validation
+local function ValidateIndex(k, format, indent)
+    local t = typeof(k)
+    if t == "string" and IsValidIdentifier(k) then
+        return k
+    elseif t == "string" then
+        return "[" .. Serializer.String(k) .. "]"
+    else
+        return "[" .. Serialize(k, format, indent) .. "]"
+    end
+end
+
+-- ======================
+--   ESCAPE STRINGS
+-- ======================
+local escapes = {
+    ["\n"] = "\\n", ["\t"] = "\\t", ["\r"] = "\\r",
+    ["\\"] = "\\\\", ["\""] = "\\\"", ["\'"] = "\\\'",
+    ["\a"] = "\\a", ["\b"] = "\\b", ["\f"] = "\\f",
+    ["\v"] = "\\v", ["\0"] = "\\0"
+}
+
+function Serializer.String(s)
+    return '"' .. s:gsub(".", escapes) .. '"'
+end
+
+-- ======================
+--   CORE METHODS
+-- ======================
+local Methods = {}
+
+Methods["nil"] = function() return "nil" end
+Methods["boolean"] = function(v) return tostring(v) end
+Methods["number"] = function(v) return tostring(v) end
+Methods["string"] = Serializer.String
+
+Methods["table"] = function(tbl, format, indent, seen)
+    if not seen then seen = {} end
+    if seen[tbl] then
+        return Serializer.__AllowCyclic and '"<cycle>"' or error("Cycle detected", 2)
+    end
+    seen[tbl] = true
+
+    local out, indent2 = {}, indent .. (format == "pretty" and "    " or "")
+    local n = #tbl
+    local count = 0
+
+    for k, v in pairs(tbl) do
+        count += 1
+        local key, val = ValidateIndex(k, format, indent2), Serialize(v, format, indent2, seen)
+        local sep = format == "pretty" and ("\n" .. indent2) or " "
+        table.insert(out, sep .. key .. " = " .. val .. ",")
+    end
+
+    seen[tbl] = nil
+    if #out == 0 then return "{}" end
+    local closing = format == "pretty" and ("\n" .. indent .. "}") or " }"
+    return "{" .. table.concat(out) .. closing
+end
+
+-- Default fallback
+setmetatable(Methods, {
+    __index = function(_, t)
+        return function(val)
+            return string.format("nil --[[ Unsupported %s%s ]]",
+                t,
+                Serializer.__tostringUnsupported and " | " .. tostring(val) or ""
+            )
+        end
+    end
+})
+
+-- ======================
+--   SERIALIZE DISPATCH
+-- ======================
+function Serialize(val, format, indent, seen)
+    local fn = Methods[typeof(val)]
+    return fn(val, format or Serializer.FormatStyle, indent or "", seen)
+end
+
+-- ======================
+--   PUBLIC API
+-- ======================
+function Serializer.dump(value, options)
+    local style = options and options.style or Serializer.FormatStyle
+    return Serialize(value, style, "", {})
+end
+
+function Serializer.register(typeName, handler)
+    Methods[typeName] = handler
+end
+
+-- ======================
+--   RETURN MODULE
+-- ======================
+return Serializer
