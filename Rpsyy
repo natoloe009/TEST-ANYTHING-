@@ -1,0 +1,162 @@
+--[[
+    Improved Roblox Lua Serializer
+    Version: 2.0
+    Author: Refactored by ChatGPT
+    License: Apache 2.0
+]]--
+
+local Serializer = {}
+Serializer.__index = Serializer
+
+-- ======================
+--   CONFIG OPTIONS
+-- ======================
+Serializer.__VERSION = "2.0"
+Serializer.__AllowCyclic = false -- insert placeholder instead of error
+Serializer.__tostringUnsupported = true -- append tostring() of unsupported types
+Serializer.FormatStyle = "pretty" -- "compact" | "pretty"
+
+-- ======================
+--   UTILITIES
+-- ======================
+
+-- Fast Lua identifier validation
+local function IsValidIdentifier(str)
+    if type(str) ~= "string" or str == "" then return false end
+    local b = str:byte(1)
+    if not b or (b ~= 95 and (b < 65 or b > 90) and (b < 97 or b > 122)) then
+        return false
+    end
+    for i = 2, #str do
+        local c = str:byte(i)
+        if not (c == 95 or (c >= 48 and c <= 57) or (c >= 65 and c <= 90) or (c >= 97 and c <= 122)) then
+            return false
+        end
+    end
+    return true
+end
+
+-- Shared validation
+local function ValidateIndex(k, format, indent)
+    local t = typeof(k)
+    if t == "string" and IsValidIdentifier(k) then
+        return k
+    elseif t == "string" then
+        return "[" .. Serializer.String(k) .. "]"
+    else
+        return "[" .. Serialize(k, format, indent) .. "]"
+    end
+end
+
+-- ======================
+--   ESCAPE STRINGS
+-- ======================
+local escapes = {
+    ["\n"] = "\\n", ["\t"] = "\\t", ["\r"] = "\\r",
+    ["\\"] = "\\\\", ["\""] = "\\\"", ["\'"] = "\\\'",
+    ["\a"] = "\\a", ["\b"] = "\\b", ["\f"] = "\\f",
+    ["\v"] = "\\v", ["\0"] = "\\0"
+}
+
+function Serializer.String(s)
+    return '"' .. s:gsub(".", escapes) .. '"'
+end
+
+-- ======================
+--   CORE METHODS
+-- ======================
+local Methods = {}
+
+Methods["nil"] = function() return "nil" end
+Methods["boolean"] = function(v) return tostring(v) end
+Methods["number"] = function(v) return tostring(v) end
+Methods["string"] = Serializer.String
+
+Methods["table"] = function(tbl, format, indent, seen)
+    if not seen then seen = {} end
+    if seen[tbl] then
+        return Serializer.__AllowCyclic and '"<cycle>"' or error("Cycle detected", 2)
+    end
+    seen[tbl] = true
+
+    local out, indent2 = {}, indent .. (format == "pretty" and "    " or "")
+    for k, v in pairs(tbl) do
+        local key, val = ValidateIndex(k, format, indent2), Serialize(v, format, indent2, seen)
+        local sep = format == "pretty" and ("\n" .. indent2) or " "
+        table.insert(out, sep .. key .. " = " .. val .. ",")
+    end
+
+    seen[tbl] = nil
+    if #out == 0 then return "{}" end
+    local closing = format == "pretty" and ("\n" .. indent .. "}") or " }"
+    return "{" .. table.concat(out) .. closing
+end
+
+-- Default fallback
+setmetatable(Methods, {
+    __index = function(_, t)
+        return function(val)
+            return string.format("nil --[[ Unsupported %s%s ]]",
+                t,
+                Serializer.__tostringUnsupported and " | " .. tostring(val) or ""
+            )
+        end
+    end
+})
+
+-- ======================
+--   SERIALIZE DISPATCH
+-- ======================
+function Serialize(val, format, indent, seen)
+    local fn = Methods[typeof(val)]
+    return fn(val, format or Serializer.FormatStyle, indent or "", seen)
+end
+
+-- ======================
+--   PUBLIC API
+-- ======================
+function Serializer.dump(value, options)
+    local style = options and options.style or Serializer.FormatStyle
+    return Serialize(value, style, "", {})
+end
+
+function Serializer.register(typeName, handler)
+    Methods[typeName] = handler
+end
+
+-- ======================
+--   ROBLOX DATATYPES
+-- ======================
+Serializer.register("Instance", function(v)
+    local ok, path = pcall(game.GetFullName, v)
+    if ok then
+        return string.format("Instance(%q)", path)
+    else
+        return string.format("Instance(%q)", v.Name)
+    end
+end)
+
+Serializer.register("Vector3", function(v)
+    return string.format("Vector3.new(%.3f, %.3f, %.3f)", v.X, v.Y, v.Z)
+end)
+
+Serializer.register("CFrame", function(v)
+    return string.format("CFrame.new(%s)", table.concat({v:GetComponents()}, ", "))
+end)
+
+Serializer.register("Color3", function(v)
+    return string.format("Color3.fromRGB(%d, %d, %d)", v.R*255, v.G*255, v.B*255)
+end)
+
+Serializer.register("UDim2", function(v)
+    return string.format("UDim2.new(%s, %s, %s, %s)", v.X.Scale, v.X.Offset, v.Y.Scale, v.Y.Offset)
+end)
+
+Serializer.register("EnumItem", function(v)
+    return tostring(v)
+end)
+
+-- ======================
+--   RETURN MODULE
+-- ======================
+return Serializer
