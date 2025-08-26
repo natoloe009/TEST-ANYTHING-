@@ -1,0 +1,72 @@
+--!optimize 2
+--!native
+
+local tostring, typeof, type, concat = tostring, typeof, type, table.concat
+
+local Keywords = {["local"]=true,["function"]=true,["end"]=true,["return"]=true}
+
+local Methods = {}
+
+local function Serialize(v, indent)
+	local t = typeof(v)
+	local f = Methods[t]
+	return f and f(v, indent or "") or ("nil -- Unsupported "..t)
+end
+
+local function ValidateIndex(Index)
+	if type(Index) == "string" then
+		if Keywords[Index] or not Index:match("^[%a_][%w_]*$") then
+			return "["..Serialize(Index).."] = "
+		end
+		return Index.." = "
+	elseif type(Index) == "number" then
+		return "["..Index.."] = "
+	end
+	return "["..Serialize(Index).."] = "
+end
+
+-- Basic serializers
+Methods["nil"] = function() return "nil" end
+Methods.boolean = function(v) return v and "true" or "false" end
+Methods.number = function(v) 
+	if v ~= v then return "0/0" end -- NaN
+	if v == math.huge then return "1/0" end
+	if v == -math.huge then return "-1/0" end
+	return tostring(v)
+end
+Methods.string = function(v) return ("%q"):format(v) end
+
+Methods.table = function(tbl, indent)
+	if next(tbl) == nil then return "{}" end
+	indent = indent .. "\t"
+	local out = {}
+	for k,v in pairs(tbl) do
+		out[#out+1] = indent..ValidateIndex(k)..Serialize(v, indent)
+	end
+	return "{\n"..concat(out,",\n").."\n"..indent:sub(1,-2).."}"
+end
+
+-- Roblox types
+Methods.Vector3 = function(v) return ("Vector3.new(%s,%s,%s)"):format(v.X,v.Y,v.Z) end
+Methods.CFrame = function(v) return ("CFrame.new(%s)"):format(table.concat({v:GetComponents()},",")) end
+Methods.Color3 = function(v) return ("Color3.new(%s,%s,%s)"):format(v.R,v.G,v.B) end
+Methods.UDim2 = function(v) return ("UDim2.new(%s,%d,%s,%d)"):format(v.X.Scale,v.X.Offset,v.Y.Scale,v.Y.Offset) end
+Methods.Instance = function(obj)
+	if obj == game then return "game" end
+	if obj.Parent then
+		return Methods.Instance(obj.Parent)..":WaitForChild("..Serialize(obj.Name)..")"
+	end
+	return ("Instance.new(%q)"):format(obj.ClassName)
+end
+
+-- Functions
+Methods["function"] = function() return "function() end" end
+Methods.thread = function() return "coroutine.create(function() end)" end
+Methods.userdata = function() return "newproxy(true)" end
+
+-- API
+local Class = {}
+function Class.Convert(v) return Serialize(v,"") end
+function Class.print(...) print(Class.Convert(...)) end
+
+return Class
