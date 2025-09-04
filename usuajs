@@ -11,16 +11,16 @@ local OrionLib = {
 	Connections = {},
 	Flags = {},
 	Themes = {
-		Default = {
-			Main = Color3.fromRGB(0, 0, 0),
-			Second = Color3.fromRGB(10, 10, 10),
-			Stroke = Color3.fromRGB(60, 60, 60),
-			Divider = Color3.fromRGB(60, 60, 60),
-			Text = Color3.fromRGB(240,240,240),
-			TextDark = Color3.fromRGB(150, 150, 150)
-		}
+		Premium = {  -- sleek premium theme
+        Main = Color3.fromRGB(20, 20, 25),       -- deep dark blue-black
+        Second = Color3.fromRGB(35, 35, 45),    -- slightly lighter contrast
+        Stroke = Color3.fromRGB(85, 85, 120),   -- subtle steel border
+        Divider = Color3.fromRGB(70, 70, 100),  -- soft divider
+        Text = Color3.fromRGB(235, 235, 245),   -- premium white-blue text
+        TextDark = Color3.fromRGB(160, 160, 190) -- muted secondary text
+    }
 	},
-	SelectedTheme = "Default",
+	SelectedTheme = "Premium",
 	Folder = nil,
 	SaveCfg = false
 }
