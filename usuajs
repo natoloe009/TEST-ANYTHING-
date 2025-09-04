@@ -11,15 +11,17 @@ local OrionLib = {
 	Connections = {},
 	Flags = {},
 	Themes = {
-		Default = {
-			Main = Color3.fromRGB(0, 0, 0),
-			Second = Color3.fromRGB(10, 10, 10),
-			Stroke = Color3.fromRGB(60, 60, 60),
-			Divider = Color3.fromRGB(60, 60, 60),
-			Text = Color3.fromRGB(240,240,240),
-			TextDark = Color3.fromRGB(150, 150, 150)
-		}
-		Premium = {  -- sleek premium theme
+		Themes = {
+    Default = {  -- normal theme
+        Main = Color3.fromRGB(0, 0, 0),
+        Second = Color3.fromRGB(10, 10, 10),
+        Stroke = Color3.fromRGB(60, 60, 60),
+        Divider = Color3.fromRGB(60, 60, 60),
+        Text = Color3.fromRGB(240,240,240),
+        TextDark = Color3.fromRGB(150, 150, 150)
+    },
+
+    Premium = {  -- sleek premium theme
         Main = Color3.fromRGB(20, 20, 25),       -- deep dark blue-black
         Second = Color3.fromRGB(35, 35, 45),    -- slightly lighter contrast
         Stroke = Color3.fromRGB(85, 85, 120),   -- subtle steel border
@@ -27,10 +29,11 @@ local OrionLib = {
         Text = Color3.fromRGB(235, 235, 245),   -- premium white-blue text
         TextDark = Color3.fromRGB(160, 160, 190) -- muted secondary text
     }
+}
 	},
 	SelectedTheme = "Premium",
 	Folder = nil,
-	SaveCfg = true
+	SaveCfg = false
 }
 
 --Feather Icons https://github.com/evoincorp/lucideblox/tree/master/src/modules/util - Created by 7kayoh
