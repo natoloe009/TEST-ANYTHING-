@@ -11,15 +11,6 @@ local OrionLib = {
 	Connections = {},
 	Flags = {},
 	Themes = {
-    Default = {  -- normal theme
-        Main = Color3.fromRGB(0, 0, 0),
-        Second = Color3.fromRGB(10, 10, 10),
-        Stroke = Color3.fromRGB(60, 60, 60),
-        Divider = Color3.fromRGB(60, 60, 60),
-        Text = Color3.fromRGB(240,240,240),
-        TextDark = Color3.fromRGB(150, 150, 150)
-    },
-
     Premium = {  -- sleek premium theme
         Main = Color3.fromRGB(20, 20, 25),       -- deep dark blue-black
         Second = Color3.fromRGB(35, 35, 45),    -- slightly lighter contrast
