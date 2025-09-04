@@ -1354,6 +1354,46 @@ end
 				end
 				return Bind
 			end  
+			-- Adds this function to your OrionLib table
+function OrionLib:LoadTheme(ThemeName, ThemeSource)
+    -- ThemeSource optional:
+    -- if provided, it can be a table, a string (loadstring), or a URL
+    local themeTable
+
+    if typeof(ThemeSource) == "table" then
+        themeTable = ThemeSource
+    elseif typeof(ThemeSource) == "string" then
+        local success, result = pcall(function()
+            return loadstring(ThemeSource)()
+        end)
+        if success and typeof(result) == "table" then
+            themeTable = result
+        else
+            warn("Failed to load theme from string")
+            return
+        end
+    elseif ThemeSource == nil then
+        themeTable = self.Themes[ThemeName]
+        if not themeTable then
+            warn("Theme not found: " .. ThemeName)
+            return
+        end
+    end
+
+    -- Apply theme
+    if themeTable then
+        self.Themes[ThemeName] = themeTable
+        self.SelectedTheme = ThemeName
+
+        -- Update all ThemeObjects in the UI
+        for _, obj in pairs(self.ThemeObjects) do
+            if obj.ThemeKey and themeTable[obj.ThemeKey] then
+                obj.Instance.BackgroundColor3 = themeTable[obj.ThemeKey]
+            end
+        end
+    end
+end
+
 			function ElementFunction:AddTextbox(TextboxConfig)
 				TextboxConfig = TextboxConfig or {}
 				TextboxConfig.Name = TextboxConfig.Name or "Textbox"
