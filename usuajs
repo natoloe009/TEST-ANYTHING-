@@ -11,7 +11,6 @@ local OrionLib = {
 	Connections = {},
 	Flags = {},
 	Themes = {
-		Themes = {
     Default = {  -- normal theme
         Main = Color3.fromRGB(0, 0, 0),
         Second = Color3.fromRGB(10, 10, 10),
@@ -30,7 +29,7 @@ local OrionLib = {
         TextDark = Color3.fromRGB(160, 160, 190) -- muted secondary text
     }
 }
-	},
+
 	SelectedTheme = "Premium",
 	Folder = nil,
 	SaveCfg = false
@@ -1719,4 +1718,3 @@ function OrionLib:Destroy()
 end
 
 return OrionLib
-
